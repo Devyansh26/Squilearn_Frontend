@@ -1,43 +1,44 @@
-// screens/DashboardScreen.jsx
-import React, { useState } from 'react';
-import { View, Text, Button } from 'react-native';
+import React, { useEffect, useState } from "react";
+import { View, Text, Button, Alert } from "react-native";
+import { fetchModuleById } from "../api";
+import { saveModule } from "../db/database";
 
 export default function DashboardScreen({ navigation }) {
-  const [streak, setStreak] = useState(5);
-  const [hasStarted, setHasStarted] = useState(false);
+  const [hasModule, setHasModule] = useState(false);
+
+  async function loadModule() {
+    const moduleData = await fetchModuleById(6); // Example module id
+    if (moduleData) {
+      saveModule(moduleData);
+      setHasModule(true);
+      Alert.alert("Module Loaded", "Today's module has been saved locally!");
+    }
+  }
+
+  useEffect(() => {
+    loadModule();
+  }, []);
 
   return (
     <View style={{ flex: 1, padding: 20 }}>
-      {/* Top Row: Streak */}
-      <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
-        <Text style={{ fontSize: 16 }}>🔥 Streak: {streak} days</Text>
+      <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
+        <Text style={{ fontSize: 16 }}>🔥 Streak: 5 days</Text>
       </View>
 
-      {/* Today’s Goal */}
       <View style={{ marginTop: 20, marginBottom: 30 }}>
         <Text style={{ fontSize: 20, marginBottom: 10 }}>🎯 Today’s Goal</Text>
-        <Text style={{ fontSize: 16 }}>Module: Day 1 - English, Math, Science</Text>
+        <Text style={{ fontSize: 16 }}>
+          {hasModule ? "Day 6 - Comprehensive Learning Module" : "Loading..."}
+        </Text>
       </View>
 
-      {/* Continue / Start Module */}
-      <View style={{ marginBottom: 20 }}>
-        {hasStarted ? (
-          <Button
-            title="📘 Continue Module"
-            onPress={() => navigation.navigate('Module')}
-          />
-        ) : (
-          <Button
-            title="✅ Start New Module"
-            onPress={() => {
-              setHasStarted(true);
-              navigation.navigate('Module');
-            }}
-          />
-        )}
-      </View>
+      {hasModule && (
+        <Button
+          title="Start / Continue Module"
+          onPress={() => navigation.navigate("Module")}
+        />
+      )}
 
-      {/* Battle Button */}
       <View style={{ marginTop: 20 }}>
         <Button title="⚔️ Battle (Coming Soon)" disabled />
       </View>
